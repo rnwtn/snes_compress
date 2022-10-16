@@ -1,12 +1,26 @@
 mod command_callbacks;
 mod stragies;
 
-use self::{stragies::DecompressionStrategy, command_callbacks::CommandCallback};
+use self::{command_callbacks::CommandCallback, stragies::DecompressionStrategy};
 
 use super::CompressionType;
 use crate::error::{DecompressionError, DecompressionErrorInfo, DecompressionErrorKind};
 
 type DecompResult<T> = core::result::Result<T, DecompressionErrorKind>;
+
+struct CommandOutcome {
+    is_terminated: bool,
+    num_bytes_consumed: usize,
+}
+
+impl CommandOutcome {
+    fn new(is_terminated: bool, num_bytes_consumed: usize) -> Self {
+        CommandOutcome {
+            is_terminated,
+            num_bytes_consumed,
+        }
+    }
+}
 
 pub fn decompress(
     source: &[u8],
@@ -17,9 +31,13 @@ pub fn decompress(
         .map_err(|kind| build_error(source, &buffer, kind))?;
     let mut i = 0;
     while i < source.len() {
-        let num_skip = process_next(&source[i..], &mut buffer, &strategy)
+        let command_outcome = process_next(&source[i..], &mut buffer, &strategy)
             .map_err(|kind| build_error(source, &buffer, kind))?;
-        i += num_skip;
+        if command_outcome.is_terminated {
+            break;
+        } else {
+            i += command_outcome.num_bytes_consumed;
+        }
     }
     Ok(buffer)
 }
@@ -28,10 +46,10 @@ fn process_next(
     source: &[u8],
     buffer: &mut Vec<u8>,
     strategy: &DecompressionStrategy,
-) -> DecompResult<usize> {
+) -> DecompResult<CommandOutcome> {
     let first_byte = source[0];
     if first_byte == 0xFF {
-        Ok(1)
+        Ok(CommandOutcome::new(true, 1))
     } else {
         let is_extended_cmd = is_extended_cmd(first_byte);
         let cmd_bits = get_command_bits(first_byte, is_extended_cmd);
@@ -41,9 +59,9 @@ fn process_next(
         let num_skip = cmd_callback(source_offset, buffer, cmd_size)?;
 
         if is_extended_cmd {
-            Ok(num_skip + 2)
+            Ok(CommandOutcome::new(false, num_skip + 2))
         } else {
-            Ok(num_skip + 1)
+            Ok(CommandOutcome::new(false, num_skip + 1))
         }
     }
 }
