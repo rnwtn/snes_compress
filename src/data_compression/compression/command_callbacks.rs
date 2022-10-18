@@ -37,12 +37,11 @@ pub fn byte_fill(
         num_bytes_consumed += 1;
     }
 
-    if num_bytes_consumed <= 2 {
-        return None;
-    }
-
     let mut data = build_command_bytes(cmd_config, num_bytes_consumed);
     data.push(first_byte);
+    if num_bytes_consumed <= data.len() {
+        return None;
+    }
     let block = Block::new(index, num_bytes_consumed, data).set_debug_message("byte fill");
     Some(block)
 }
@@ -67,13 +66,12 @@ pub fn word_fill(
         num_bytes_consumed += 1;
     }
 
-    if num_bytes_consumed <= 3 {
-        return None;
-    }
-
     let mut data = build_command_bytes(cmd_config, num_bytes_consumed);
     data.push(first_byte);
     data.push(second_byte);
+    if num_bytes_consumed <= data.len() {
+        return None;
+    }
     let block = Block::new(index, num_bytes_consumed, data).set_debug_message("word fill");
     Some(block)
 }
@@ -96,12 +94,11 @@ pub fn increasing_fill(
         num_bytes_consumed += 1;
     }
 
-    if num_bytes_consumed <= 2 {
-        return None;
-    }
-
     let mut data = build_command_bytes(cmd_config, num_bytes_consumed);
     data.push(first_byte);
+    if num_bytes_consumed <= data.len() {
+        return None;
+    }
     let block = Block::new(index, num_bytes_consumed, data).set_debug_message("increasing fill");
     Some(block)
 }
@@ -114,11 +111,11 @@ pub fn repeat_le(
 ) -> Option<Block> {
     let repeat_info = history.find_longest_repeat(source, 0)?;
     let num_bytes_consumed = repeat_info.size;
-    if num_bytes_consumed <= 3 {
-        return None;
-    }
     let mut data = build_command_bytes(cmd_config, num_bytes_consumed);
     data.append(&mut transform_into_bytes_le(repeat_info.start_index));
+    if num_bytes_consumed <= data.len() {
+        return None;
+    }
     let block = Block::new(index, num_bytes_consumed, data).set_debug_message("repeat le");
     Some(block)
 }
@@ -131,11 +128,11 @@ pub fn xor_repeat_le(
 ) -> Option<Block> {
     let repeat_info = history.find_longest_repeat_xor(source, 0)?;
     let num_bytes_consumed = repeat_info.size;
-    if num_bytes_consumed <= 3 {
-        return None;
-    }
     let mut data = build_command_bytes(cmd_config, num_bytes_consumed);
     data.append(&mut transform_into_bytes_le(repeat_info.start_index));
+    if num_bytes_consumed <= data.len() {
+        return None;
+    }
     let block = Block::new(index, num_bytes_consumed, data).set_debug_message("xor repeat le");
     Some(block)
 }
@@ -149,11 +146,11 @@ pub fn negative_repeat(
     let lower_bound = index - cmp::min(255, index);
     let repeat_info = history.find_longest_repeat(source, lower_bound)?;
     let num_bytes_consumed = repeat_info.size;
-    if num_bytes_consumed <= 2 {
-        return None;
-    }
     let mut data = build_command_bytes(cmd_config, num_bytes_consumed);
     data.push((index - repeat_info.start_index) as u8);
+    if num_bytes_consumed <= data.len() {
+        return None;
+    }
     let block = Block::new(index, num_bytes_consumed, data).set_debug_message("negative repeat");
     Some(block)
 }
@@ -167,11 +164,11 @@ pub fn negative_xor_repeat(
     let lower_bound = index - cmp::min(255, index);
     let repeat_info = history.find_longest_repeat_xor(source, lower_bound)?;
     let num_bytes_consumed = repeat_info.size;
-    if num_bytes_consumed <= 2 {
-        return None;
-    }
     let mut data = build_command_bytes(cmd_config, num_bytes_consumed);
     data.push((index - repeat_info.start_index) as u8);
+    if num_bytes_consumed <= data.len() {
+        return None;
+    }
     let block = Block::new(index, num_bytes_consumed, data).set_debug_message("negative xor repeat");
     Some(block)
 }
@@ -186,7 +183,8 @@ fn build_command_bytes(cmd_config: &CommandConfiguration, num_bytes_consumed: us
     let cmd = cmd_config.cmd_num;
     let cmd_size = cmd_config.cmd_size;
     let extended_threshold = 2_usize.pow(8 - cmd_size as u32);
-    let is_extended = num_bytes_consumed >= extended_threshold || cmd_config.is_extended_only;
+    let size = num_bytes_consumed - 1;
+    let is_extended = size >= extended_threshold || cmd_config.is_extended_only;
 
     let shift_width = 8 - cmd_size;
     let extended_mask = {
@@ -204,7 +202,6 @@ fn build_command_bytes(cmd_config: &CommandConfiguration, num_bytes_consumed: us
         }
     };
     let size_mask = {
-        let size = num_bytes_consumed - 1;
         if is_extended {
             (size >> 8) as u8
         } else {
@@ -214,7 +211,6 @@ fn build_command_bytes(cmd_config: &CommandConfiguration, num_bytes_consumed: us
     let mut command_bytes = vec![];
     command_bytes.push(bit_or(extended_mask, cmd_mask, size_mask));
     if is_extended {
-        let size = num_bytes_consumed - 1;
         command_bytes.push((size & 0xFF) as u8);
     }
     command_bytes

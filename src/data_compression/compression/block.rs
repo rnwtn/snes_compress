@@ -24,10 +24,15 @@ impl Block {
         self.data.len()
     }
 
-    pub fn ratio(&self) -> f32 {
-        self.len() as f32 / self.num_bytes_consumed as f32
+    pub fn is_better(&self, other: &Block) -> bool {
+        if self.num_bytes_consumed > other.num_bytes_consumed {
+            return true
+        }
+        if self.num_bytes_consumed == other.num_bytes_consumed {
+            return self.len() < other.len();
+        }
+        return false
     }
-
 
     pub fn collect(self) -> Vec<u8> {
         self.data

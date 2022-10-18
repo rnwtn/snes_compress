@@ -26,7 +26,7 @@ impl CompressionStrategy {
             if let Some(current_block) = command.call(source, start_index, history_table) {
                 match &best_block {
                     Some(best) => {
-                        if current_block.ratio() < best.ratio() {
+                        if current_block.is_better(best) {
                             return Some(current_block);
                         }
                     }
