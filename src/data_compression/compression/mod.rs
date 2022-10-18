@@ -47,10 +47,6 @@ pub fn compress(
             }
             last_block_end_index = i + block.num_bytes_consumed;
             buffer.append(&mut block.collect());
-            // temp note: issue at index 1286...
-            if buffer.len() >= 309 {
-                let _remove_me = 3;
-            }
         }
         i += 1;
     }
