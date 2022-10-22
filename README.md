@@ -34,7 +34,6 @@ TODO: Add wrapper project to compile this to so (linux), dll (windows), and dyli
 
 ### Binary:
 `cargo install snes_compress`
-
 ```
 Usage:
   snes_compress [option] "<input_file>" "<output_file>"
