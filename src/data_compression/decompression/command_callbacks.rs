@@ -1,5 +1,5 @@
 use super::DecompResult;
-use crate::error::DecompressionErrorKind;
+use crate::errors::DecompressionErrorKind;
 
 pub type CommandCallback = fn(&[u8], &mut Vec<u8>, usize) -> DecompResult<usize>;
 

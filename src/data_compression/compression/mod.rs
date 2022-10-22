@@ -7,7 +7,7 @@ mod strategies;
 use self::block::Block;
 
 use super::CompressionType;
-use crate::error::CompressionError;
+use crate::errors::CompressionError;
 use history_table::HistoryTable;
 use strategies::CompressionStrategy;
 
