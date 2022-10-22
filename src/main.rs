@@ -61,9 +61,8 @@ fn print_all_info() {
 }
 
 fn print_info() {
-    println!("snes_tools:");
-    println!("    A compression library that only supports LZ5 right");
-    println!("    now, but may support others later.");
+    println!("snes_compress:");
+    println!("    For compressing and decompressing data for old games.");
     println!();
 }
 
