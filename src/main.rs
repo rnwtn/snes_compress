@@ -1,6 +1,6 @@
 use std::{env, fs};
 
-use snes_tools::data_compression::{self, CompressionType};
+use snes_compress::CompressionType;
 
 #[derive(Debug)]
 struct Inputs {
@@ -26,11 +26,11 @@ fn main() {
     let source = fs::read(&inputs.input_file).unwrap();
 
     if inputs.option == "-d" {
-        let decompressed = data_compression::decompress(&source, CompressionType::LZ5).unwrap();
+        let decompressed = snes_compress::decompress(&source, CompressionType::LZ5).unwrap();
         fs::write(&inputs.output_file, decompressed).unwrap();
     }
     if inputs.option == "-c" {
-        let compressed = data_compression::compress(&source, CompressionType::LZ5).unwrap();
+        let compressed = snes_compress::compress(&source, CompressionType::LZ5).unwrap();
         fs::write(&inputs.output_file, compressed).unwrap();
     }
 }

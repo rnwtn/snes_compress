@@ -4,7 +4,7 @@ mod stragies;
 use self::{command_callbacks::CommandCallback, stragies::DecompressionStrategy};
 
 use super::CompressionType;
-use crate::error::{DecompressionError, DecompressionErrorInfo, DecompressionErrorKind};
+use crate::errors::{DecompressionError, DecompressionErrorInfo, DecompressionErrorKind};
 
 type DecompResult<T> = core::result::Result<T, DecompressionErrorKind>;
 
