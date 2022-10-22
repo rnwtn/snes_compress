@@ -69,7 +69,7 @@ fn print_info() {
 
 fn print_usage() {
     println!("Usage:");
-    println!("    snes_tools [option] <input_file> <output_file>");
+    println!("    snes_compress [option] <input_file> <output_file>");
     println!();
 }
 
