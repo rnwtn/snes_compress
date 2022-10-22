@@ -1,4 +1,4 @@
-# snes_compress
+# snes-compress
 
 A compression library I made. Only supports LZ5 right now, but I tried to code it so implementing the others should be trivial. Planning on compiling this to a DLL so it can be used by other languages besides Rust. Everything's still very WIP; needs more testing.
 
