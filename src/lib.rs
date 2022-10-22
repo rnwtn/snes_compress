@@ -1,6 +1,6 @@
 /*!
 
-`snes-compress` provides functions for decompressing and recompressing snes data.
+`snes_compress` provides functions for decompressing and recompressing snes data.
 
 ## Supported Formats
 
